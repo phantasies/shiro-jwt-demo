@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.alibaba.fastjson.JSON;
+import com.demo.common.Consts;
 import com.demo.common.Result;
 import com.demo.component.LocaleMessage;
 import com.demo.component.SpringContextHolder;
@@ -39,19 +40,13 @@ public class CustomFilter extends AuthenticatingFilter {
 
     private static Logger logger = LoggerFactory.getLogger(CustomFilter.class);
 
-    private static final Long TOKEN_EXPIRE_IN = 3600 * 24 * 3l; //3天
-
-    private static final Long TOKEN_REFRESH_INTERVAL = 3600l;
-
-    private static final String TOKEN_NAME = "adminToken";
-
     //    @Autowired
     //    private LocaleMessage localeMessage;
 
     //是否需要验证登录
     private boolean isRequestWithJwt(ServletRequest request) {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
-        String token = CookieUtil.getCookieValue(httpRequest, TOKEN_NAME);
+        String token = CookieUtil.getCookieValue(httpRequest, Consts.TOKEN_NAME);
         return token != null;
     }
 
@@ -112,11 +107,11 @@ public class CustomFilter extends AuthenticatingFilter {
             boolean shouldRefresh = shouldTokenRefresh(JWTUtil.getIssuedAt((String) jwtToken
                 .getPrincipal()));
             if (shouldRefresh) {
-                newToken = JWTUtil.generateToken(username, TOKEN_EXPIRE_IN);
+                newToken = JWTUtil.generateToken(username, Consts.TOKEN_EXPIRE_IN);
             }
         }
         if (StringUtils.isNotBlank(newToken)) {
-            CookieUtil.setCookie(httpRequest, httpResponse, TOKEN_NAME, newToken);
+            CookieUtil.setCookie(httpRequest, httpResponse, Consts.TOKEN_NAME, newToken);
 
         }
         return true;
@@ -126,7 +121,7 @@ public class CustomFilter extends AuthenticatingFilter {
     protected boolean shouldTokenRefresh(Date issueAt) {
         LocalDateTime issueTime = LocalDateTime.ofInstant(issueAt.toInstant(),
             ZoneId.systemDefault());
-        return LocalDateTime.now().minusSeconds(TOKEN_REFRESH_INTERVAL).isAfter(issueTime);
+        return LocalDateTime.now().minusSeconds(Consts.TOKEN_REFRESH_INTERVAL).isAfter(issueTime);
     }
 
     /**
@@ -148,7 +143,7 @@ public class CustomFilter extends AuthenticatingFilter {
     @Override
     protected AuthenticationToken createToken(ServletRequest request, ServletResponse response)
         throws Exception {
-        String token = CookieUtil.getCookieValue((HttpServletRequest) request, TOKEN_NAME);
+        String token = CookieUtil.getCookieValue((HttpServletRequest) request, Consts.TOKEN_NAME);
         JWTToken jwtToken = new JWTToken(token);
         return jwtToken;
     }

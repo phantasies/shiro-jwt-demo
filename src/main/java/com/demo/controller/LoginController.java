@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.demo.common.Consts;
 import com.demo.common.Result;
 import com.demo.exception.BusinessException;
 import com.demo.model.SysUser;
@@ -37,8 +38,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping
 public class LoginController {
 
-    private static final Long TOKEN_EXPIRE_IN = 3600 * 24 * 1l; //1天
-
     @Autowired
     SysUserService sysUserService;
 
@@ -66,7 +65,7 @@ public class LoginController {
             if (!password.equals(DesUtil.decrypt(sysUser.getPassword()))) {
                 throw new BusinessException("user.login.failed");
             }
-            String token = JWTUtil.generateToken(sysUser.getUsername(), TOKEN_EXPIRE_IN);
+            String token = JWTUtil.generateToken(sysUser.getUsername(), Consts.TOKEN_EXPIRE_IN);
             List<String> permissions = new ArrayList<>();
             if (sysUser.getRole() != null) {
                 String[] roles = StringUtils.split(sysUser.getRole(), ",");
@@ -80,7 +79,7 @@ public class LoginController {
                 }
             }
 
-            CookieUtil.setCookie(request, response, "adminToken", token);
+            CookieUtil.setCookie(request, response, Consts.TOKEN_NAME, token);
 
             Map<String, Object> map = new HashMap<String, Object>();
             map.put("permissions", permissions);
