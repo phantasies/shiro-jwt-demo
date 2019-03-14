@@ -26,7 +26,7 @@ Authorization：授权，即根据role和permission验证用户是否有权限�
 
 ShiroConfiguration.java 提供shiro全局配置，包括4个过滤器、ehCache缓存bean、realm、AOP支持
 
-CustomFilter.java: 认证过滤器，核心调用链：
+CustomFilter.java: 认证过滤器，继承AuthenticatingFilter，核心调用链：
 
 1. CustomFilter.isAccessAllowed
 2. 调用其父类的AuthenticatingFilter.executeLogin
