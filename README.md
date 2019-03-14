@@ -1,7 +1,7 @@
 # shiro-jwt-demo
 基于shiro+jwt的后台管理系统登录与权限模块
 
-##JWT介绍##
+## JWT介绍 ##
 JWT(JSON Web Token)是目前最流行的跨域身份验证解决方案，是以JSON 对象为载体的轻量级开放标准（RFC 7519）。
 一个JWT token包含头信息、荷载信息、签名信息。特点如下：
 
@@ -18,7 +18,7 @@ JWT(JSON Web Token)是目前最流行的跨域身份验证解决方案，是以J
 编解码示例：见JWTUtil.java
 
 
-##shiro集成核心类##
+## shiro集成核心类 ##
 
 Authentication: 认证，即根据用户名和密码验证用户是否可以进入系统
 
@@ -41,20 +41,20 @@ CustomLogoutFilter.java: 登出过滤器
 
 CustomRealm.java: 认证信息获取、授权信息获取及验证，实现doGetAuthorizationInfo和doGetAuthenticationInfo两个方法
 
-##登录处理##
+## 登录处理 ##
 LoginController.java: 
 1. 获取用户输入的用户名和密码，到数据库中验证密码是否准确
 2. 验证通过，调用JWTUtil.generateToken生成token，其中payload是username(String对象)，并设置有效期3天
 3. 写入cookie，名称为adminToken
 
-##业务逻辑##
+## 业务逻辑 ##
 TestController.java:
 1. 浏览器调用接口，携带cookie: adminToken=value
 2. @RequiresAuthentication和@RequiresPermissions("xxx")注解会调用CustomFilter和CustomPermissionFilter来进行认证与授权判断，其中xxx是功能名，在数据库中配置
 3. 暂未使用角色授权判断
 
 
-##示例##
+## 示例 ##
 登录请求：
 ```
 http://192.168.100.222:8088/api/login
@@ -106,7 +106,7 @@ http://192.168.100.222:8088/api/test/query
 ```
 
 
-##其他##
+## 其他 ##
 1. 支持多语言
 2. 通过AOP捕获Controller抛出的异常，封装为json
 3. 数据库建表及示例数据位于sql目录下
