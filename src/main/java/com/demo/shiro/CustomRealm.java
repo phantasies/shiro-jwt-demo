@@ -84,9 +84,10 @@ public class CustomRealm extends AuthorizingRealm {
         //        String username = (String) authenticationToken.getPrincipal();
         SysUser sysUser = sysUserService.selectByUsername(username);
         if (sysUser == null) {
-            throw new AccountException("帐号不存在！");
+            //账户不存在
+            throw new AccountException("user.login.failed");
         }
-        return new SimpleAuthenticationInfo(username, token, "my_realm");
+        return new SimpleAuthenticationInfo(username, token, getName());
     }
 
     /*    @PostConstruct

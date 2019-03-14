@@ -17,6 +17,7 @@ import com.demo.service.SysUserService;
 import com.demo.utils.CookieUtil;
 import com.demo.utils.DesUtil;
 import com.demo.utils.JWTUtil;
+import com.demo.utils.Utils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
@@ -55,16 +56,18 @@ public class LoginController {
         //        UsernamePasswordToken myToken = new UsernamePasswordToken(username, password);
         Assert.notNull(username, "username.is.empty");
         Assert.notNull(password, "password.is.empty");
+
+        //不能使用subject.login，因为我们需要用过jwtToken来鉴权
+        //subject.login(myToken);
+        SysUser sysUser = sysUserService.selectByUsername(username);
+        if (sysUser == null) {
+            throw new BusinessException("user.login.failed");
+        }
+        if (!password.equals(DesUtil.decrypt(sysUser.getPassword()))) {
+            throw new BusinessException("user.login.failed");
+        }
+
         try {
-            //不能使用subject.login，因为我们需要用过jwtToken来鉴权
-            //subject.login(myToken);
-            SysUser sysUser = sysUserService.selectByUsername(username);
-            if (sysUser == null) {
-                throw new BusinessException("user.login.failed");
-            }
-            if (!password.equals(DesUtil.decrypt(sysUser.getPassword()))) {
-                throw new BusinessException("user.login.failed");
-            }
             String token = JWTUtil.generateToken(sysUser.getUsername(), Consts.TOKEN_EXPIRE_IN);
             List<String> permissions = new ArrayList<>();
             if (sysUser.getRole() != null) {
@@ -92,10 +95,9 @@ public class LoginController {
         } catch (AuthenticationException e) {
             return Result.build(500, "user.login.failed");
         } catch (Exception e) {
-            e.printStackTrace();
+            Utils.errorStackTrace(e);
         }
-
-        return Result.build(500, "service.system.error");
+        throw new BusinessException("service.system.error");
     }
 
 }
