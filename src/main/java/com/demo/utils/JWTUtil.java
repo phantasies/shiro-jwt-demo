@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 /**
  * @Desc JWTUtil
@@ -79,8 +81,38 @@ public class JWTUtil {
             return null;
         } catch (Exception e) {
             //throw new IllegalStateException("Invalid Token. " + e.getMessage());
+            Utils.errorStackTrace(e);
             return null;
         }
 
+    }
+
+    /**
+     * 测试
+     * @param args
+     */
+    public static void main(String[] args) throws InterruptedException {
+        UserInfo testUserInfo = new UserInfo("user001", "13333333333");
+        String token1 = JWTUtil.generateToken(testUserInfo, 3600);
+        System.out.println("token1 encoded, with payload=" + token1);
+        UserInfo testUserInfoDecoded = JWTUtil.decodeToken(token1, UserInfo.class);
+        System.out.println("token1 decoded=" + testUserInfoDecoded);
+
+        String testUsername = "user001";
+        String token2 = JWTUtil.generateToken(testUsername, 3);
+        System.out.println("token2 encoded, with payload=" + token2);
+
+        //挂起5秒，让token2失效
+        System.out.println("sleeping for 5 seconds");
+        Thread.sleep(5000);
+        String testUsernameDecoded = JWTUtil.decodeToken(token2, String.class);
+        System.out.println("token2 decoded=" + testUsernameDecoded);
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class UserInfo {
+        private String username;
+        private String msisdn;
     }
 }
